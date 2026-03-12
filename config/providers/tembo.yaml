@@ -1,0 +1,44 @@
+# Tembo Money savings products configuration
+provider: tembo
+base_url: https://www.tembomoney.com
+
+products:
+  - name: tembo_cash_isa
+    url: /savings/cash-isa
+    product_type: cash_isa
+    rate_type: variable
+    selectors:
+      rate: ".rate-value, .aer-rate, [data-rate]"
+      rate_fallback: ".product-rate"
+
+  - name: tembo_fixed_rate_isa
+    url: /savings/fixed-rate-isa
+    product_type: fixed_rate
+    rate_type: fixed
+    selectors:
+      rate: ".rate-value, .aer-rate"
+    term_months: 12
+
+  - name: tembo_cash_lifetime_isa
+    url: /savings/lifetime-isa
+    product_type: lifetime_isa
+    rate_type: variable
+    selectors:
+      rate: ".rate-value, .aer-rate"
+
+  - name: tembo_easy_access_isa
+    url: /savings/easy-access
+    product_type: easy_access
+    rate_type: variable
+    selectors:
+      rate: ".rate-value, .aer-rate"
+
+# Rate limiting settings
+rate_limit:
+  requests_per_second: 0.5
+  burst_capacity: 5
+
+# Wait conditions
+wait:
+  selector: ".rate-value, .product-rate"
+  timeout_ms: 10000

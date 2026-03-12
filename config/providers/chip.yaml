@@ -1,0 +1,42 @@
+# Chip savings products configuration
+provider: chip
+base_url: https://www.getchip.uk
+
+products:
+  - name: chip_cash_isa
+    url: /savings/isa
+    product_type: cash_isa
+    rate_type: variable
+    selectors:
+      rate: ".interest-rate, .rate-percentage"
+
+  - name: chip_easy_access
+    url: /savings/easy-access
+    product_type: easy_access
+    rate_type: variable
+    selectors:
+      rate: ".interest-rate, .rate-percentage"
+
+  - name: chip_instant_access
+    url: /savings/instant-access
+    product_type: easy_access
+    rate_type: variable
+    selectors:
+      rate: ".interest-rate, .rate-percentage"
+
+  - name: chip_prize_savings
+    url: /savings/prize-savings
+    product_type: prize_savings
+    rate_type: variable
+    selectors:
+      rate: ".prize-rate, .interest-rate"
+
+# Rate limiting settings
+rate_limit:
+  requests_per_second: 0.5
+  burst_capacity: 5
+
+# Wait conditions
+wait:
+  selector: ".interest-rate, .savings-rate"
+  timeout_ms: 10000

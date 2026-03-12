@@ -1,0 +1,51 @@
+# Moneybox savings products configuration
+provider: moneybox
+base_url: https://www.moneyboxapp.com
+
+products:
+  - name: moneybox_cash_isa
+    url: /savings/cash-isa
+    product_type: cash_isa
+    rate_type: variable
+    selectors:
+      rate: ".rate-display, .aer-value"
+
+  - name: moneybox_open_access_isa
+    url: /savings/open-access
+    product_type: easy_access
+    rate_type: variable
+    selectors:
+      rate: ".rate-display, .aer-value"
+
+  - name: moneybox_notice_90
+    url: /savings/90-day-notice
+    product_type: notice_account
+    rate_type: variable
+    selectors:
+      rate: ".rate-display, .aer-value"
+    notice_days: 90
+
+  - name: moneybox_notice_95
+    url: /savings/95-day-notice
+    product_type: notice_account
+    rate_type: variable
+    selectors:
+      rate: ".rate-display, .aer-value"
+    notice_days: 95
+
+  - name: moneybox_business_saver
+    url: /business/savings
+    product_type: business_saver
+    rate_type: variable
+    selectors:
+      rate: ".rate-display, .aer-value"
+
+# Rate limiting settings
+rate_limit:
+  requests_per_second: 0.5
+  burst_capacity: 5
+
+# Wait conditions
+wait:
+  selector: ".rate-display, .savings-product"
+  timeout_ms: 10000
