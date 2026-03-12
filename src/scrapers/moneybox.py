@@ -20,15 +20,6 @@ CONFIG_PATH = Path(__file__).parent.parent.parent / "config" / "providers" / "mo
 class MoneyboxScraper(BaseScraper):
     """Scraper for Moneybox savings products."""
 
-    # Product-specific patterns for Moneybox (searches raw HTML due to JSON metadata)
-    _PRODUCT_PATTERNS: dict[str, str] = {
-        "moneybox_cash_isa": r"Cash ISA.*?(\d+\.\d+)%\s*AER",
-        "moneybox_open_access_isa": r"Open Access.*?(\d+\.\d+)%",
-        "moneybox_notice_90": r"90[- ]?Day.*?(\d+\.\d+)%",
-        "moneybox_notice_95": r"95[- ]?Day.*?(\d+\.\d+)%",
-        "moneybox_business_saver": r"Business.*?(\d+\.\d+)%",
-    }
-
     def __init__(
         self,
         browser: BrowserManager,
@@ -139,18 +130,11 @@ class MoneyboxScraper(BaseScraper):
         """
         soup = BeautifulSoup(html, "lxml")
         selectors = product_config.get("selectors", {})
-        product_name = product_config.get("name", "")
 
         # If a custom rate_pattern is specified, search raw HTML first
         # (Moneybox embeds rates in JSON metadata, not visible text)
         rate_pattern = product_config.get("rate_pattern")
         if rate_pattern and (rate := self.extract_rate_with_pattern(html, rate_pattern)):
-            return rate
-
-        # Try product-specific patterns (searches raw HTML for JSON metadata)
-        if product_name in self._PRODUCT_PATTERNS and (
-            rate := self.extract_rate_with_pattern(html, self._PRODUCT_PATTERNS[product_name])
-        ):
             return rate
 
         # Try primary selector(s)

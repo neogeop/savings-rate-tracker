@@ -36,6 +36,7 @@ class MoneyboxProduct(str, Enum):
 
     CASH_ISA = "moneybox_cash_isa"
     OPEN_ACCESS_CASH_ISA = "moneybox_open_access_cash_isa"
+    LIFETIME_ISA = "moneybox_lifetime_isa"
 
 
 class T212Product(str, Enum):

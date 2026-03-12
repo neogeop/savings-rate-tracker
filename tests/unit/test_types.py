@@ -89,10 +89,11 @@ class TestMoneyboxProduct:
         """Verify Moneybox product enum values."""
         assert MoneyboxProduct.CASH_ISA.value == "moneybox_cash_isa"
         assert MoneyboxProduct.OPEN_ACCESS_CASH_ISA.value == "moneybox_open_access_cash_isa"
+        assert MoneyboxProduct.LIFETIME_ISA.value == "moneybox_lifetime_isa"
 
     def test_moneybox_product_count(self):
         """Verify expected number of Moneybox products."""
-        assert len(MoneyboxProduct) == 2
+        assert len(MoneyboxProduct) == 3
 
 
 @pytest.mark.unit

@@ -21,6 +21,15 @@ products:
       rate: "body"
     rate_pattern: "market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
 
+  - name: moneybox_lifetime_isa
+    url: /isa/lifetime/cash
+    product_type: lifetime_isa
+    rate_type: variable
+    selectors:
+      rate: "body"
+    # Match "Earn a market-leading X.XX% AER" headline pattern
+    rate_pattern: "Earn a market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
+
 # Rate limiting settings
 rate_limit:
   requests_per_second: 0.5
