@@ -1,10 +1,10 @@
 # Savings Rate Scraping Agent
 
-A Python agent that periodically scrapes savings product rates from UK fintech providers (Tembo, Chip, Moneybox) and stores them in JSON/CSV format for competitive analysis and historical tracking.
+A Python agent that periodically scrapes savings product rates from UK fintech providers (Tembo, Chip, Moneybox, Trading 212) and stores them in JSON/CSV format for competitive analysis and historical tracking.
 
 ## Features
 
-- **Multi-provider scraping**: Tembo, Chip, Moneybox
+- **Multi-provider scraping**: Tembo, Chip, Moneybox, Trading 212
 - **Rate extraction**: Configurable CSS selectors with fallback patterns
 - **Storage backends**: JSON and CSV with schema versioning
 - **Change detection**: Track rate changes and flag anomalies
@@ -17,7 +17,7 @@ A Python agent that periodically scrapes savings product rates from UK fintech p
 ```bash
 # Clone repository
 git clone <repo-url>
-cd scraping-competitors
+cd savings-rate-tracker
 
 # Create virtual environment
 python3 -m venv .venv
@@ -58,7 +58,7 @@ python -m src.main providers
 
 ```
 scrape:
-  --provider, -p    Provider to scrape: all, tembo, chip, moneybox (default: all)
+  --provider, -p    Provider to scrape: all, tembo, chip, moneybox, t212 (default: all)
   --output, -o      Output file path (auto-generated if not provided)
   --format, -f      Output format: json, csv (default: json)
   --headless        Run browser in headless mode (default: true)
@@ -79,13 +79,13 @@ show:
 crontab -e
 
 # Run every 6 hours
-0 */6 * * * /path/to/scraping-competitors/scripts/run_scraper.sh
+0 */6 * * * /path/to/savings-rate-tracker/scripts/run_scraper.sh
 
 # Run daily at 9am with change detection
-0 9 * * * /path/to/scraping-competitors/scripts/run_scraper.sh --detect-changes
+0 9 * * * /path/to/savings-rate-tracker/scripts/run_scraper.sh --detect-changes
 
 # Run hourly for specific provider
-0 * * * * /path/to/scraping-competitors/scripts/run_scraper.sh --provider tembo
+0 * * * * /path/to/savings-rate-tracker/scripts/run_scraper.sh --provider tembo
 ```
 
 ### Script Options
@@ -104,7 +104,7 @@ Options:
 ## Project Structure
 
 ```
-scraping-competitors/
+savings-rate-tracker/
 ├── src/
 │   ├── main.py              # CLI entry point
 │   ├── orchestrator.py      # Multi-provider orchestration
@@ -115,7 +115,8 @@ scraping-competitors/
 │   │   ├── base.py          # Abstract base scraper
 │   │   ├── tembo.py         # Tembo scraper
 │   │   ├── chip.py          # Chip scraper
-│   │   └── moneybox.py      # Moneybox scraper
+│   │   ├── moneybox.py      # Moneybox scraper
+│   │   └── t212.py          # Trading 212 scraper
 │   ├── storage/
 │   │   ├── json_store.py    # JSON storage backend
 │   │   └── csv_store.py     # CSV storage backend
