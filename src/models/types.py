@@ -35,10 +35,7 @@ class MoneyboxProduct(str, Enum):
     """Moneybox savings products."""
 
     CASH_ISA = "moneybox_cash_isa"
-    OPEN_ACCESS_ISA = "moneybox_open_access_isa"
-    NOTICE_90_DAY = "moneybox_notice_90"
-    NOTICE_95_DAY = "moneybox_notice_95"
-    BUSINESS_SAVER = "moneybox_business_saver"
+    OPEN_ACCESS_CASH_ISA = "moneybox_open_access_cash_isa"
 
 
 class T212Product(str, Enum):

@@ -2,50 +2,24 @@
 provider: moneybox
 base_url: https://www.moneyboxapp.com
 
-# Moneybox uses /save as main savings page
+# Moneybox has individual product pages with clearer rate display
 products:
   - name: moneybox_cash_isa
-    url: /save
+    url: /cash-isa
     product_type: cash_isa
     rate_type: variable
     selectors:
-      # Moneybox rates are in page text, need regex extraction
       rate: "body"
-    rate_pattern: "Cash ISA.*?(\\d+\\.\\d+)%\\s*AER"
+    # Match headline "Earn a market-leading X.XX% AER" pattern
+    rate_pattern: "market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
 
-  - name: moneybox_open_access_isa
-    url: /save
-    product_type: easy_access
+  - name: moneybox_open_access_cash_isa
+    url: /open-access-cash-isa
+    product_type: cash_isa
     rate_type: variable
     selectors:
       rate: "body"
-    rate_pattern: "Easy Access.*?(\\d+\\.\\d+)%"
-
-  - name: moneybox_notice_90
-    url: /save
-    product_type: notice_account
-    rate_type: variable
-    selectors:
-      rate: "body"
-    rate_pattern: "90.?Day.*?(\\d+\\.\\d+)%"
-    notice_days: 90
-
-  - name: moneybox_notice_95
-    url: /save
-    product_type: notice_account
-    rate_type: variable
-    selectors:
-      rate: "body"
-    rate_pattern: "95.?Day.*?(\\d+\\.\\d+)%"
-    notice_days: 95
-
-  - name: moneybox_business_saver
-    url: /business
-    product_type: business_saver
-    rate_type: variable
-    selectors:
-      rate: "body"
-    rate_pattern: "Business.*?(\\d+\\.\\d+)%"
+    rate_pattern: "market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
 
 # Rate limiting settings
 rate_limit:

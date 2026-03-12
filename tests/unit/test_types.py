@@ -88,14 +88,11 @@ class TestMoneyboxProduct:
     def test_moneybox_product_values(self):
         """Verify Moneybox product enum values."""
         assert MoneyboxProduct.CASH_ISA.value == "moneybox_cash_isa"
-        assert MoneyboxProduct.OPEN_ACCESS_ISA.value == "moneybox_open_access_isa"
-        assert MoneyboxProduct.NOTICE_90_DAY.value == "moneybox_notice_90"
-        assert MoneyboxProduct.NOTICE_95_DAY.value == "moneybox_notice_95"
-        assert MoneyboxProduct.BUSINESS_SAVER.value == "moneybox_business_saver"
+        assert MoneyboxProduct.OPEN_ACCESS_CASH_ISA.value == "moneybox_open_access_cash_isa"
 
     def test_moneybox_product_count(self):
         """Verify expected number of Moneybox products."""
-        assert len(MoneyboxProduct) == 5
+        assert len(MoneyboxProduct) == 2
 
 
 @pytest.mark.unit
