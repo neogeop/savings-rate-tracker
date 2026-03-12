@@ -2,36 +2,42 @@
 provider: tembo
 base_url: https://www.tembomoney.com
 
+# Tembo has a single savings page with all products
+# We scrape individual product pages for specific rates
 products:
   - name: tembo_cash_isa
-    url: /savings/cash-isa
+    url: /savings
     product_type: cash_isa
     rate_type: variable
     selectors:
-      rate: ".rate-value, .aer-rate, [data-rate]"
-      rate_fallback: ".product-rate"
+      # Tembo uses Chakra UI - rates appear in text like "4.55% AER"
+      rate: ".chakra-text, .chakra-stack, [class*='css-']"
+    rate_pattern: "Cash ISA.*?(\\d+\\.\\d+)%\\s*AER"
 
   - name: tembo_fixed_rate_isa
-    url: /savings/fixed-rate-isa
+    url: /savings
     product_type: fixed_rate
     rate_type: fixed
     selectors:
-      rate: ".rate-value, .aer-rate"
+      rate: ".chakra-text, .chakra-stack"
+    rate_pattern: "Fixed.*?(\\d+\\.\\d+)%\\s*AER"
     term_months: 12
 
   - name: tembo_cash_lifetime_isa
-    url: /savings/lifetime-isa
+    url: /savings
     product_type: lifetime_isa
     rate_type: variable
     selectors:
-      rate: ".rate-value, .aer-rate"
+      rate: ".chakra-text, .chakra-stack"
+    rate_pattern: "Lifetime ISA.*?(\\d+\\.\\d+)%\\s*AER"
 
   - name: tembo_easy_access_isa
-    url: /savings/easy-access
+    url: /savings
     product_type: easy_access
     rate_type: variable
     selectors:
-      rate: ".rate-value, .aer-rate"
+      rate: ".chakra-text, .chakra-stack"
+    rate_pattern: "Easy Access.*?(\\d+\\.\\d+)%\\s*AER"
 
 # Rate limiting settings
 rate_limit:
@@ -40,5 +46,6 @@ rate_limit:
 
 # Wait conditions
 wait:
-  selector: ".rate-value, .product-rate"
-  timeout_ms: 10000
+  selector: "body"
+  timeout_ms: 15000
+  wait_for_text: "% AER"

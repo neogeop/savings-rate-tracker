@@ -20,6 +20,15 @@ CONFIG_PATH = Path(__file__).parent.parent.parent / "config" / "providers" / "mo
 class MoneyboxScraper(BaseScraper):
     """Scraper for Moneybox savings products."""
 
+    # Product-specific patterns for Moneybox (searches raw HTML due to JSON metadata)
+    _PRODUCT_PATTERNS: dict[str, str] = {
+        "moneybox_cash_isa": r"Cash ISA.*?(\d+\.\d+)%\s*AER",
+        "moneybox_open_access_isa": r"Open Access.*?(\d+\.\d+)%",
+        "moneybox_notice_90": r"90[- ]?Day.*?(\d+\.\d+)%",
+        "moneybox_notice_95": r"95[- ]?Day.*?(\d+\.\d+)%",
+        "moneybox_business_saver": r"Business.*?(\d+\.\d+)%",
+    }
+
     def __init__(
         self,
         browser: BrowserManager,
@@ -113,7 +122,10 @@ class MoneyboxScraper(BaseScraper):
     def _extract_rate_from_html(
         self, html: str, product_config: dict[str, Any]
     ) -> Decimal:
-        """Extract rate from HTML using configured selectors.
+        """Extract rate from HTML using configured selectors or patterns.
+
+        Moneybox embeds rates in JSON metadata within the HTML, so we search
+        the raw HTML content directly rather than just visible text.
 
         Args:
             html: HTML content.
@@ -127,18 +139,36 @@ class MoneyboxScraper(BaseScraper):
         """
         soup = BeautifulSoup(html, "lxml")
         selectors = product_config.get("selectors", {})
+        product_name = product_config.get("name", "")
+
+        # If a custom rate_pattern is specified, search raw HTML first
+        # (Moneybox embeds rates in JSON metadata, not visible text)
+        rate_pattern = product_config.get("rate_pattern")
+        if rate_pattern and (rate := self.extract_rate_with_pattern(html, rate_pattern)):
+            return rate
+
+        # Try product-specific patterns (searches raw HTML for JSON metadata)
+        if product_name in self._PRODUCT_PATTERNS and (
+            rate := self.extract_rate_with_pattern(html, self._PRODUCT_PATTERNS[product_name])
+        ):
+            return rate
 
         # Try primary selector(s)
         rate_selector = selectors.get("rate", ".rate-display")
         for selector in rate_selector.split(","):
             selector = selector.strip()
-            element = soup.select_one(selector)
-            if element:
+            elements = soup.select(selector)
+            for element in elements:
                 text = element.get_text(strip=True)
                 try:
                     return self.extract_rate(text)
                 except RateExtractionError:
                     continue
+
+        # Last resort: extract all rates from raw HTML and return highest
+        all_rates = self.extract_all_rates(html)
+        if all_rates:
+            return max(all_rates)
 
         raise RateExtractionError(
             f"Could not extract rate for {product_config.get('name')}",

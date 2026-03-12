@@ -114,7 +114,7 @@ class TemboScraper(BaseScraper):
     def _extract_rate_from_html(
         self, html: str, product_config: dict[str, Any]
     ) -> Decimal:
-        """Extract rate from HTML using configured selectors.
+        """Extract rate from HTML using configured selectors or patterns.
 
         Args:
             html: HTML content.
@@ -128,13 +128,21 @@ class TemboScraper(BaseScraper):
         """
         soup = BeautifulSoup(html, "lxml")
         selectors = product_config.get("selectors", {})
+        full_text: str | None = None  # Lazy cache
+
+        # If a custom rate_pattern is specified, use it for extraction
+        rate_pattern = product_config.get("rate_pattern")
+        if rate_pattern:
+            full_text = soup.get_text()
+            if rate := self.extract_rate_with_pattern(full_text, rate_pattern):
+                return rate
 
         # Try primary selector(s)
         rate_selector = selectors.get("rate", ".rate-value")
         for selector in rate_selector.split(","):
             selector = selector.strip()
-            element = soup.select_one(selector)
-            if element:
+            elements = soup.select(selector)
+            for element in elements:
                 text = element.get_text(strip=True)
                 try:
                     return self.extract_rate(text)
@@ -148,6 +156,13 @@ class TemboScraper(BaseScraper):
             if element:
                 text = element.get_text(strip=True)
                 return self.extract_rate(text)
+
+        # Last resort: try to find any rate in the page text
+        if full_text is None:
+            full_text = soup.get_text()
+        all_rates = self.extract_all_rates(full_text)
+        if all_rates:
+            return max(all_rates)
 
         raise RateExtractionError(
             f"Could not extract rate for {product_config.get('name')}",

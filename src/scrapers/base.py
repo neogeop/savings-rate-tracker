@@ -188,3 +188,26 @@ class BaseScraper(ABC):
                 except InvalidOperation:
                     continue
         return list(set(rates))  # Remove duplicates
+
+    def extract_rate_with_pattern(self, text: str, pattern: str) -> Decimal | None:
+        """Extract rate using a custom regex pattern.
+
+        Args:
+            text: Text to search.
+            pattern: Regex pattern with one capture group for the rate.
+
+        Returns:
+            Extracted rate or None if not found/invalid.
+        """
+        match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+        if match:
+            try:
+                rate = Decimal(match.group(1))
+                if self.validate_rate(rate):
+                    self._log.debug(
+                        "rate.pattern_match", pattern=pattern, rate=str(rate)
+                    )
+                    return rate
+            except (IndexError, ValueError, InvalidOperation):
+                pass
+        return None

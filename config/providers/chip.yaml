@@ -4,39 +4,44 @@ base_url: https://www.getchip.uk
 
 products:
   - name: chip_cash_isa
-    url: /savings/isa
+    url: /savings-accounts/cash-isa
     product_type: cash_isa
     rate_type: variable
     selectors:
-      rate: ".interest-rate, .rate-percentage"
+      # Chip uses .rate-test and .promo_pricing for rate displays
+      rate: ".rate-test, .promo_pricing, .w-embed"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
   - name: chip_easy_access
-    url: /savings/easy-access
+    url: /savings-accounts/easy-access-saver
     product_type: easy_access
     rate_type: variable
     selectors:
-      rate: ".interest-rate, .rate-percentage"
+      rate: ".rate-test, .promo_pricing, .w-embed"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
   - name: chip_instant_access
-    url: /savings/instant-access
+    url: /savings-accounts/instant-access-account
     product_type: easy_access
     rate_type: variable
     selectors:
-      rate: ".interest-rate, .rate-percentage"
+      rate: ".rate-test, .promo_pricing, .w-embed"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
   - name: chip_prize_savings
-    url: /savings/prize-savings
+    url: /savings-accounts/prize-savings-account
     product_type: prize_savings
     rate_type: variable
     selectors:
-      rate: ".prize-rate, .interest-rate"
+      rate: ".rate-test, .promo_pricing, .w-embed"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
 # Rate limiting settings
 rate_limit:
   requests_per_second: 0.5
   burst_capacity: 5
 
-# Wait conditions
+# Wait conditions - use body to avoid selector not found errors
 wait:
-  selector: ".interest-rate, .savings-rate"
-  timeout_ms: 10000
+  selector: "body"
+  timeout_ms: 15000

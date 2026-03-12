@@ -2,43 +2,50 @@
 provider: moneybox
 base_url: https://www.moneyboxapp.com
 
+# Moneybox uses /save as main savings page
 products:
   - name: moneybox_cash_isa
-    url: /savings/cash-isa
+    url: /save
     product_type: cash_isa
     rate_type: variable
     selectors:
-      rate: ".rate-display, .aer-value"
+      # Moneybox rates are in page text, need regex extraction
+      rate: "body"
+    rate_pattern: "Cash ISA.*?(\\d+\\.\\d+)%\\s*AER"
 
   - name: moneybox_open_access_isa
-    url: /savings/open-access
+    url: /save
     product_type: easy_access
     rate_type: variable
     selectors:
-      rate: ".rate-display, .aer-value"
+      rate: "body"
+    rate_pattern: "Easy Access.*?(\\d+\\.\\d+)%"
 
   - name: moneybox_notice_90
-    url: /savings/90-day-notice
+    url: /save
     product_type: notice_account
     rate_type: variable
     selectors:
-      rate: ".rate-display, .aer-value"
+      rate: "body"
+    rate_pattern: "90.?Day.*?(\\d+\\.\\d+)%"
     notice_days: 90
 
   - name: moneybox_notice_95
-    url: /savings/95-day-notice
+    url: /save
     product_type: notice_account
     rate_type: variable
     selectors:
-      rate: ".rate-display, .aer-value"
+      rate: "body"
+    rate_pattern: "95.?Day.*?(\\d+\\.\\d+)%"
     notice_days: 95
 
   - name: moneybox_business_saver
-    url: /business/savings
+    url: /business
     product_type: business_saver
     rate_type: variable
     selectors:
-      rate: ".rate-display, .aer-value"
+      rate: "body"
+    rate_pattern: "Business.*?(\\d+\\.\\d+)%"
 
 # Rate limiting settings
 rate_limit:
@@ -47,5 +54,6 @@ rate_limit:
 
 # Wait conditions
 wait:
-  selector: ".rate-display, .savings-product"
-  timeout_ms: 10000
+  selector: "body"
+  timeout_ms: 15000
+  wait_for_text: "% AER"
