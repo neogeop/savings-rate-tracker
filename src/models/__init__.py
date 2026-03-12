@@ -1,5 +1,6 @@
 """Data models for savings rates."""
 
+from src.models.rate import SavingsRate
 from src.models.types import (
     ChipProduct,
     MoneyboxProduct,
@@ -18,4 +19,5 @@ __all__ = [
     "ProductName",
     "ProductType",
     "RateType",
+    "SavingsRate",
 ]
