@@ -28,14 +28,6 @@ products:
       rate: ".rate-test, .promo_pricing, .w-embed"
     rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
-  - name: chip_prize_savings
-    url: /savings-accounts/prize-savings-account
-    product_type: prize_savings
-    rate_type: variable
-    selectors:
-      rate: ".rate-test, .promo_pricing, .w-embed"
-    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
-
 # Rate limiting settings
 rate_limit:
   requests_per_second: 0.5
