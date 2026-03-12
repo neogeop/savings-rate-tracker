@@ -3,41 +3,44 @@ provider: tembo
 base_url: https://www.tembomoney.com
 
 # Tembo has a single savings page with all products
-# We scrape individual product pages for specific rates
+# Each product uses specific patterns to extract the correct rate
 products:
-  - name: tembo_cash_isa
+  - name: tembo_cash_isa_easy_access
     url: /savings
     product_type: cash_isa
     rate_type: variable
     selectors:
-      # Tembo uses Chakra UI - rates appear in text like "4.55% AER"
-      rate: ".chakra-text, .chakra-stack, [class*='css-']"
-    rate_pattern: "Cash ISA.*?(\\d+\\.\\d+)%\\s*AER"
+      rate: ".chakra-text, .chakra-stack"
+    # Match "X.XX% AER (variable)" pattern - unique to Cash ISA Easy Access
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER\\s*\\(variable\\)"
 
-  - name: tembo_fixed_rate_isa
+  - name: tembo_cash_isa_fixed_rate
     url: /savings
     product_type: fixed_rate
     rate_type: fixed
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    rate_pattern: "Fixed.*?(\\d+\\.\\d+)%\\s*AER"
+    # Match "X.XX% AER Fixed" pattern - unique to Cash ISA Fixed Rate
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER Fixed"
     term_months: 12
 
-  - name: tembo_cash_lifetime_isa
+  - name: tembo_lifetime_isa_cash
     url: /savings
     product_type: lifetime_isa
     rate_type: variable
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    rate_pattern: "Lifetime ISA.*?(\\d+\\.\\d+)%\\s*AER"
+    # Match "Cash (X.XX% AER variable)" pattern - unique to LISA Cash option
+    rate_pattern: "Cash \\((\\d+\\.\\d+)%\\s*AER variable\\)"
 
-  - name: tembo_easy_access_isa
+  - name: tembo_lifetime_isa_stocks
     url: /savings
-    product_type: easy_access
+    product_type: lifetime_isa
     rate_type: variable
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    rate_pattern: "Easy Access.*?(\\d+\\.\\d+)%\\s*AER"
+    # Match first rate after "AER Fixed" text - the LISA Stocks rate follows Fixed Rate
+    rate_pattern: "AER Fixed.*?(\\d+\\.\\d+)%\\s*AER"
 
 # Rate limiting settings
 rate_limit:

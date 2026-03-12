@@ -19,7 +19,7 @@ def sample_rates() -> list[SavingsRate]:
     return [
         SavingsRate(
             provider=Provider.TEMBO,
-            product_name=TemboProduct.CASH_ISA,
+            product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
             product_type=ProductType.CASH_ISA,
             rate=Decimal("4.55"),
             rate_type=RateType.VARIABLE,
@@ -28,7 +28,7 @@ def sample_rates() -> list[SavingsRate]:
         ),
         SavingsRate(
             provider=Provider.TEMBO,
-            product_name=TemboProduct.FIXED_RATE_ISA,
+            product_name=TemboProduct.CASH_ISA_FIXED_RATE,
             product_type=ProductType.FIXED_RATE,
             rate=Decimal("5.25"),
             rate_type=RateType.FIXED,
@@ -177,7 +177,7 @@ class TestCSVStorageSave:
         content = temp_csv_path.read_text()
         assert "tembo" in content
         assert "4.55" in content
-        assert "tembo_cash_isa" in content
+        assert "tembo_cash_isa_easy_access" in content
 
 
 @pytest.mark.unit
@@ -266,7 +266,7 @@ class TestStorageRoundtrip:
         """Roundtrip preserves all optional fields."""
         rate = SavingsRate(
             provider=Provider.TEMBO,
-            product_name=TemboProduct.CASH_ISA,
+            product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
             product_type=ProductType.CASH_ISA,
             rate=Decimal("4.55"),
             rate_type=RateType.VARIABLE,

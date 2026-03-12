@@ -17,7 +17,7 @@ from src.models.types import ProductType, Provider, RateType, TemboProduct
 
 def make_rate(
     rate: Decimal,
-    product: TemboProduct = TemboProduct.CASH_ISA,
+    product: TemboProduct = TemboProduct.CASH_ISA_EASY_ACCESS,
     days_ago: int = 0,
 ) -> SavingsRate:
     """Create a test rate."""
@@ -38,7 +38,7 @@ class TestRateChange:
     def test_is_significant_above_threshold(self):
         """Change above threshold is significant."""
         change = RateChange(
-            product_name=TemboProduct.CASH_ISA,
+            product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
             change_type=ChangeType.INCREASE,
             previous_rate=Decimal("4.00"),
             current_rate=Decimal("4.15"),
@@ -51,7 +51,7 @@ class TestRateChange:
     def test_is_significant_below_threshold(self):
         """Change below threshold is not significant."""
         change = RateChange(
-            product_name=TemboProduct.CASH_ISA,
+            product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
             change_type=ChangeType.INCREASE,
             previous_rate=Decimal("4.00"),
             current_rate=Decimal("4.003"),
@@ -85,7 +85,7 @@ class TestChangeDetectorInit:
         """Detector loads historical rates."""
         history = [make_rate(Decimal("4.00"), days_ago=1)]
         detector = ChangeDetector(historical_rates=history)
-        assert TemboProduct.CASH_ISA in detector._history
+        assert TemboProduct.CASH_ISA_EASY_ACCESS in detector._history
 
 
 @pytest.mark.unit
@@ -215,13 +215,13 @@ class TestHistoryManagement:
         current = [make_rate(Decimal("4.00"))]
         detector.detect_changes(current)
 
-        assert len(detector._history[TemboProduct.CASH_ISA]) == 1
+        assert len(detector._history[TemboProduct.CASH_ISA_EASY_ACCESS]) == 1
 
         # Second detection adds to history
         current2 = [make_rate(Decimal("4.10"))]
         detector.detect_changes(current2)
 
-        assert len(detector._history[TemboProduct.CASH_ISA]) == 2
+        assert len(detector._history[TemboProduct.CASH_ISA_EASY_ACCESS]) == 2
 
 
 @pytest.mark.unit
@@ -233,7 +233,7 @@ class TestFilterMethods:
         detector = ChangeDetector()
         changes = [
             RateChange(
-                product_name=TemboProduct.CASH_ISA,
+                product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
                 change_type=ChangeType.INCREASE,
                 previous_rate=Decimal("4.00"),
                 current_rate=Decimal("4.50"),
@@ -242,7 +242,7 @@ class TestFilterMethods:
                 scraped_at=datetime.now(timezone.utc),
             ),
             RateChange(
-                product_name=TemboProduct.FIXED_RATE_ISA,
+                product_name=TemboProduct.CASH_ISA_FIXED_RATE,
                 change_type=ChangeType.NO_CHANGE,
                 previous_rate=Decimal("5.00"),
                 current_rate=Decimal("5.00"),
@@ -254,14 +254,14 @@ class TestFilterMethods:
 
         significant = detector.get_significant_changes(changes)
         assert len(significant) == 1
-        assert significant[0].product_name == TemboProduct.CASH_ISA
+        assert significant[0].product_name == TemboProduct.CASH_ISA_EASY_ACCESS
 
     def test_get_anomalies(self):
         """Filters to anomalies only."""
         detector = ChangeDetector()
         changes = [
             RateChange(
-                product_name=TemboProduct.CASH_ISA,
+                product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
                 change_type=ChangeType.ANOMALY,
                 previous_rate=Decimal("4.00"),
                 current_rate=Decimal("6.00"),
@@ -272,7 +272,7 @@ class TestFilterMethods:
                 anomaly_reason="Test anomaly",
             ),
             RateChange(
-                product_name=TemboProduct.FIXED_RATE_ISA,
+                product_name=TemboProduct.CASH_ISA_FIXED_RATE,
                 change_type=ChangeType.INCREASE,
                 previous_rate=Decimal("5.00"),
                 current_rate=Decimal("5.10"),

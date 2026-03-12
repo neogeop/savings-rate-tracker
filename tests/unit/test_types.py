@@ -48,22 +48,21 @@ class TestTemboProduct:
 
     def test_tembo_product_values(self):
         """Verify Tembo product enum values."""
-        assert TemboProduct.CASH_ISA.value == "tembo_cash_isa"
-        assert TemboProduct.FIXED_RATE_ISA.value == "tembo_fixed_rate_isa"
-        assert TemboProduct.CASH_LIFETIME_ISA.value == "tembo_cash_lifetime_isa"
-        assert TemboProduct.SS_LIFETIME_ISA.value == "tembo_ss_lifetime_isa"
-        assert TemboProduct.EASY_ACCESS_ISA.value == "tembo_easy_access_isa"
+        assert TemboProduct.CASH_ISA_EASY_ACCESS.value == "tembo_cash_isa_easy_access"
+        assert TemboProduct.CASH_ISA_FIXED_RATE.value == "tembo_cash_isa_fixed_rate"
+        assert TemboProduct.LIFETIME_ISA_CASH.value == "tembo_lifetime_isa_cash"
+        assert TemboProduct.LIFETIME_ISA_STOCKS.value == "tembo_lifetime_isa_stocks"
         assert TemboProduct.HOMESAVER.value == "tembo_homesaver"
 
     def test_tembo_product_count(self):
         """Verify expected number of Tembo products."""
-        assert len(TemboProduct) == 6
+        assert len(TemboProduct) == 5
 
     def test_tembo_product_string_conversion(self):
         """Tembo products should convert to strings correctly."""
-        assert TemboProduct.CASH_ISA.value == "tembo_cash_isa"
+        assert TemboProduct.CASH_ISA_EASY_ACCESS.value == "tembo_cash_isa_easy_access"
         # Enums compare equal to their string values
-        assert TemboProduct.CASH_ISA == "tembo_cash_isa"
+        assert TemboProduct.CASH_ISA_EASY_ACCESS == "tembo_cash_isa_easy_access"
 
 
 @pytest.mark.unit

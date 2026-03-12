@@ -21,7 +21,7 @@ def valid_rate_data() -> dict:
     """Valid rate data for testing."""
     return {
         "provider": Provider.TEMBO,
-        "product_name": TemboProduct.CASH_ISA,
+        "product_name": TemboProduct.CASH_ISA_EASY_ACCESS,
         "product_type": ProductType.CASH_ISA,
         "rate": Decimal("4.55"),
         "rate_type": RateType.VARIABLE,
@@ -37,7 +37,7 @@ class TestSavingsRateCreation:
         """Create a valid SavingsRate."""
         rate = SavingsRate(**valid_rate_data)
         assert rate.provider == Provider.TEMBO
-        assert rate.product_name == TemboProduct.CASH_ISA
+        assert rate.product_name == TemboProduct.CASH_ISA_EASY_ACCESS
         assert rate.rate == Decimal("4.55")
 
     def test_create_with_optional_fields(self, valid_rate_data):
@@ -59,7 +59,7 @@ class TestSavingsRateCreation:
         """Create rate from string enum values."""
         rate = SavingsRate(
             provider="tembo",
-            product_name="tembo_cash_isa",
+            product_name="tembo_cash_isa_easy_access",
             product_type="cash_isa",
             rate="4.55",
             rate_type="variable",
@@ -176,7 +176,7 @@ class TestSerialization:
         data = rate.to_dict()
 
         assert data["provider"] == "tembo"
-        assert data["product_name"] == "tembo_cash_isa"
+        assert data["product_name"] == "tembo_cash_isa_easy_access"
         assert data["rate"] == "4.55"
         assert data["rate_type"] == "variable"
         assert "2026-03-12T10:00:00" in data["scraped_at"]

@@ -34,7 +34,7 @@ def sample_rate() -> SavingsRate:
     """Create sample rate."""
     return SavingsRate(
         provider=Provider.TEMBO,
-        product_name=TemboProduct.CASH_ISA,
+        product_name=TemboProduct.CASH_ISA_EASY_ACCESS,
         product_type=ProductType.CASH_ISA,
         rate=Decimal("4.55"),
         rate_type=RateType.VARIABLE,

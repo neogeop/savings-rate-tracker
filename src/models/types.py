@@ -15,11 +15,10 @@ class Provider(str, Enum):
 class TemboProduct(str, Enum):
     """Tembo savings products."""
 
-    CASH_ISA = "tembo_cash_isa"
-    FIXED_RATE_ISA = "tembo_fixed_rate_isa"
-    CASH_LIFETIME_ISA = "tembo_cash_lifetime_isa"
-    SS_LIFETIME_ISA = "tembo_ss_lifetime_isa"
-    EASY_ACCESS_ISA = "tembo_easy_access_isa"
+    CASH_ISA_EASY_ACCESS = "tembo_cash_isa_easy_access"
+    CASH_ISA_FIXED_RATE = "tembo_cash_isa_fixed_rate"
+    LIFETIME_ISA_CASH = "tembo_lifetime_isa_cash"
+    LIFETIME_ISA_STOCKS = "tembo_lifetime_isa_stocks"
     HOMESAVER = "tembo_homesaver"
 
 
