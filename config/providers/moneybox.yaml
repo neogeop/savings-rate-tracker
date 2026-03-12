@@ -26,9 +26,17 @@ products:
     product_type: lifetime_isa
     rate_type: variable
     selectors:
-      rate: "body"
-    # Match "Earn a market-leading X.XX% AER" headline pattern
-    rate_pattern: "Earn a market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
+      rate: ".rate-display, .aer-value"
+    # Match "market-leading X.XX% AER" headline pattern
+    rate_pattern: "market-leading\\s*(\\d+\\.\\d+)%\\s*AER"
+    # Fallback patterns if primary doesn't match
+    fallback_patterns:
+      # "Earn a market-leading 4.60% AER" with possible whitespace/tags
+      - "Earn[^\\d]*(\\d+\\.\\d+)%\\s*AER"
+      # "X.XX% AER (variable)" - the full rate display format
+      - "(\\d+\\.\\d+)%\\s*AER\\s*\\(variable\\)"
+      # Lifetime ISA specific context
+      - "Lifetime ISA[^\\d]*(\\d+\\.\\d+)%"
 
 # Rate limiting settings
 rate_limit:

@@ -115,9 +115,6 @@ class MoneyboxScraper(BaseScraper):
     ) -> Decimal:
         """Extract rate from HTML using configured selectors or patterns.
 
-        Moneybox embeds rates in JSON metadata within the HTML, so we search
-        the raw HTML content directly rather than just visible text.
-
         Args:
             html: HTML content.
             product_config: Product configuration with selectors.
@@ -129,13 +126,23 @@ class MoneyboxScraper(BaseScraper):
             RateExtractionError: If rate cannot be extracted.
         """
         soup = BeautifulSoup(html, "lxml")
+        page_text = soup.get_text(separator=" ")
         selectors = product_config.get("selectors", {})
 
-        # If a custom rate_pattern is specified, search raw HTML first
-        # (Moneybox embeds rates in JSON metadata, not visible text)
+        # Try rate_pattern on raw HTML first (for JSON metadata)
         rate_pattern = product_config.get("rate_pattern")
-        if rate_pattern and (rate := self.extract_rate_with_pattern(html, rate_pattern)):
-            return rate
+        if rate_pattern:
+            if rate := self.extract_rate_with_pattern(html, rate_pattern):
+                return rate
+            # Also try on parsed text (HTML tags may break pattern match)
+            if rate := self.extract_rate_with_pattern(page_text, rate_pattern):
+                return rate
+
+        # Try fallback patterns if primary pattern fails
+        fallback_patterns = product_config.get("fallback_patterns", [])
+        for pattern in fallback_patterns:
+            if rate := self.extract_rate_with_pattern(page_text, pattern):
+                return rate
 
         # Try primary selector(s)
         rate_selector = selectors.get("rate", ".rate-display")
@@ -148,11 +155,6 @@ class MoneyboxScraper(BaseScraper):
                     return self.extract_rate(text)
                 except RateExtractionError:
                     continue
-
-        # Last resort: extract all rates from raw HTML and return highest
-        all_rates = self.extract_all_rates(html)
-        if all_rates:
-            return max(all_rates)
 
         raise RateExtractionError(
             f"Could not extract rate for {product_config.get('name')}",

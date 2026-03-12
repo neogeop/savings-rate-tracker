@@ -148,13 +148,6 @@ class ChipScraper(BaseScraper):
                 except RateExtractionError:
                     continue
 
-        # Last resort: try to find any rate in the page text
-        if full_text is None:
-            full_text = soup.get_text()
-        all_rates = self.extract_all_rates(full_text)
-        if all_rates:
-            return max(all_rates)
-
         raise RateExtractionError(
             f"Could not extract rate for {product_config.get('name')}",
             raw_text=html[:500],
