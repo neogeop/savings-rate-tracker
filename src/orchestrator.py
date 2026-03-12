@@ -12,6 +12,7 @@ from src.models.types import Provider
 from src.scrapers.base import BaseScraper
 from src.scrapers.chip import ChipScraper
 from src.scrapers.moneybox import MoneyboxScraper
+from src.scrapers.t212 import T212Scraper
 from src.scrapers.tembo import TemboScraper
 from src.storage.base import StorageBackend
 from src.utils.browser import BrowserManager
@@ -65,6 +66,7 @@ class Orchestrator:
         Provider.TEMBO: TemboScraper,
         Provider.CHIP: ChipScraper,
         Provider.MONEYBOX: MoneyboxScraper,
+        Provider.T212: T212Scraper,
     }
 
     def __init__(

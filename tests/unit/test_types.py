@@ -8,6 +8,7 @@ from src.models.types import (
     ProductType,
     Provider,
     RateType,
+    T212Product,
     TemboProduct,
 )
 
@@ -21,11 +22,12 @@ class TestProvider:
         assert Provider.TEMBO.value == "tembo"
         assert Provider.CHIP.value == "chip"
         assert Provider.MONEYBOX.value == "moneybox"
+        assert Provider.T212.value == "t212"
 
     def test_provider_membership(self):
         """Verify all expected providers exist."""
         providers = {p.value for p in Provider}
-        assert providers == {"tembo", "chip", "moneybox"}
+        assert providers == {"tembo", "chip", "moneybox", "t212"}
 
     def test_provider_string_conversion(self):
         """Provider value should convert to string correctly."""
@@ -98,6 +100,25 @@ class TestMoneyboxProduct:
 
 
 @pytest.mark.unit
+class TestT212Product:
+    """Tests for T212Product enum."""
+
+    def test_t212_product_values(self):
+        """Verify T212 product enum values."""
+        assert T212Product.CASH_ISA.value == "t212_cash_isa"
+        assert T212Product.INTEREST_ON_CASH.value == "t212_interest_on_cash"
+
+    def test_t212_product_count(self):
+        """Verify expected number of T212 products."""
+        assert len(T212Product) == 2
+
+    def test_t212_product_string_conversion(self):
+        """T212 products should convert to strings correctly."""
+        assert T212Product.CASH_ISA.value == "t212_cash_isa"
+        assert T212Product.CASH_ISA == "t212_cash_isa"
+
+
+@pytest.mark.unit
 class TestProductType:
     """Tests for ProductType enum."""
 
@@ -148,6 +169,8 @@ class TestProductNameUnion:
             assert isinstance(product.value, str)
         for product in MoneyboxProduct:
             assert isinstance(product.value, str)
+        for product in T212Product:
+            assert isinstance(product.value, str)
 
     def test_product_names_are_unique(self):
         """All product names across providers should be unique."""
@@ -155,6 +178,7 @@ class TestProductNameUnion:
             [p.value for p in TemboProduct]
             + [p.value for p in ChipProduct]
             + [p.value for p in MoneyboxProduct]
+            + [p.value for p in T212Product]
         )
         assert len(all_names) == len(set(all_names))
 
@@ -166,3 +190,5 @@ class TestProductNameUnion:
             assert product.value.startswith("chip_")
         for product in MoneyboxProduct:
             assert product.value.startswith("moneybox_")
+        for product in T212Product:
+            assert product.value.startswith("t212_")

@@ -9,6 +9,7 @@ class Provider(str, Enum):
     TEMBO = "tembo"
     CHIP = "chip"
     MONEYBOX = "moneybox"
+    T212 = "t212"
 
 
 class TemboProduct(str, Enum):
@@ -41,8 +42,15 @@ class MoneyboxProduct(str, Enum):
     BUSINESS_SAVER = "moneybox_business_saver"
 
 
+class T212Product(str, Enum):
+    """Trading 212 savings products."""
+
+    CASH_ISA = "t212_cash_isa"
+    INTEREST_ON_CASH = "t212_interest_on_cash"
+
+
 # Union type for all products
-ProductName = TemboProduct | ChipProduct | MoneyboxProduct
+ProductName = TemboProduct | ChipProduct | MoneyboxProduct | T212Product
 
 
 class ProductType(str, Enum):

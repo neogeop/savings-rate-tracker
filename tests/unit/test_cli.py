@@ -120,7 +120,7 @@ class TestScrapeExecution:
 
         mock_result = OrchestratorResult(
             total_rates=5,
-            successful_providers=3,
+            successful_providers=4,
             failed_providers=0,
         )
         mock_result.duration_seconds  # Access to trigger calculation
@@ -133,7 +133,7 @@ class TestScrapeExecution:
         )
 
         assert "Rates found: 5" in result.output
-        assert "Providers scraped: 3/3" in result.output
+        assert "Providers scraped: 4/4" in result.output
 
     @patch("src.main._run_scrape")
     def test_scrape_single_provider(self, mock_run, runner, tmp_path):

@@ -8,6 +8,7 @@ from src.models.types import (
     ProductType,
     Provider,
     RateType,
+    T212Product,
     TemboProduct,
 )
 
@@ -16,6 +17,7 @@ __all__ = [
     "TemboProduct",
     "ChipProduct",
     "MoneyboxProduct",
+    "T212Product",
     "ProductName",
     "ProductType",
     "RateType",

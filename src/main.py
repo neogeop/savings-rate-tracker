@@ -57,7 +57,7 @@ def cli(ctx: click.Context, verbose: bool) -> None:
 @click.option(
     "--provider",
     "-p",
-    type=click.Choice(["all", "tembo", "chip", "moneybox"]),
+    type=click.Choice(["all", "tembo", "chip", "moneybox", "t212"]),
     default="all",
     help="Provider to scrape (default: all)",
 )

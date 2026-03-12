@@ -1,0 +1,37 @@
+# Trading 212 savings products configuration
+provider: t212
+base_url: https://www.trading212.com
+
+# T212 embeds interest rates in JSON data on the page
+# Rates are stored as decimals (0.049 = 4.9%) under account types:
+# - "undefined":{"AVUSUK":{"GBP":0.049}} for ISA
+# - "invest":{"AVUSUK":{"GBP":0.038}} for Invest account
+
+products:
+  - name: t212_cash_isa
+    url: /isa
+    product_type: cash_isa
+    rate_type: variable
+    # Extract ISA rate from "undefined" key (UK entity AVUSUK)
+    json_key: "undefined"
+    selectors:
+      rate: "body"
+
+  - name: t212_interest_on_cash
+    url: /isa
+    product_type: easy_access
+    rate_type: variable
+    # Extract Invest account rate from "invest" key (UK entity AVUSUK)
+    json_key: "invest"
+    selectors:
+      rate: "body"
+
+# Rate limiting settings
+rate_limit:
+  requests_per_second: 0.5
+  burst_capacity: 5
+
+# Wait conditions - T212 uses JS rendering
+wait:
+  selector: "body"
+  timeout_ms: 15000

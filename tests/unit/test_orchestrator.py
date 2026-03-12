@@ -107,7 +107,7 @@ class TestOrchestratorInit:
     def test_default_providers(self, mock_browser):
         """Orchestrator defaults to all providers."""
         orch = Orchestrator(browser=mock_browser)
-        assert set(orch.providers) == {Provider.TEMBO, Provider.CHIP, Provider.MONEYBOX}
+        assert set(orch.providers) == {Provider.TEMBO, Provider.CHIP, Provider.MONEYBOX, Provider.T212}
 
     def test_custom_providers(self, mock_browser):
         """Orchestrator accepts custom provider list."""
@@ -144,7 +144,7 @@ class TestOrchestratorRun:
             orch = Orchestrator(browser=mock_browser)
             result = await orch.run()
 
-            assert mock_scrape.call_count == 3  # All providers
+            assert mock_scrape.call_count == 4  # All providers
 
     async def test_aggregates_results(self, mock_browser, sample_rate):
         """Run aggregates results from all providers."""
@@ -158,8 +158,8 @@ class TestOrchestratorRun:
             orch = Orchestrator(browser=mock_browser)
             result = await orch.run()
 
-            assert result.successful_providers == 3
-            assert result.total_rates == 3
+            assert result.successful_providers == 4
+            assert result.total_rates == 4
 
     async def test_handles_failures(self, mock_browser):
         """Run continues after provider failure."""
@@ -181,7 +181,7 @@ class TestOrchestratorRun:
             result = await orch.run()
 
             assert result.failed_providers == 1
-            assert result.successful_providers == 2
+            assert result.successful_providers == 3
 
     async def test_saves_to_storage(self, mock_browser, mock_storage, sample_rate):
         """Run saves rates to storage."""
@@ -218,11 +218,11 @@ class TestOrchestratorIsolation:
             result = await orch.run()
 
             # All providers attempted
-            assert call_count == 3
+            assert call_count == 4
             # One failed
             assert result.failed_providers == 1
             # Others succeeded
-            assert result.successful_providers == 2
+            assert result.successful_providers == 3
 
 
 @pytest.mark.unit

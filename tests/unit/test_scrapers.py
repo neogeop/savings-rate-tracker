@@ -9,6 +9,7 @@ import pytest
 from src.models.types import Provider
 from src.scrapers.chip import ChipScraper
 from src.scrapers.moneybox import MoneyboxScraper
+from src.scrapers.t212 import T212Scraper
 from src.scrapers.tembo import TemboScraper
 from src.utils.browser import BrowserManager
 
@@ -37,6 +38,12 @@ def chip_easy_access_html():
 def moneybox_notice_90_html():
     """Load Moneybox 90 Day Notice fixture."""
     return (FIXTURES_DIR / "moneybox_notice_90.html").read_text()
+
+
+@pytest.fixture
+def t212_interest_on_cash_html():
+    """Load T212 Interest on Cash fixture."""
+    return (FIXTURES_DIR / "t212_interest_on_cash.html").read_text()
 
 
 @pytest.mark.unit
@@ -157,6 +164,49 @@ class TestMoneyboxScraper:
 
 
 @pytest.mark.unit
+class TestT212Scraper:
+    """Tests for Trading 212 scraper."""
+
+    def test_provider(self, mock_browser):
+        """Scraper returns correct provider."""
+        scraper = T212Scraper(browser=mock_browser, config={})
+        assert scraper.provider == Provider.T212
+
+    def test_base_url_default(self, mock_browser):
+        """Scraper uses default base URL."""
+        scraper = T212Scraper(browser=mock_browser, config={})
+        assert "trading212.com" in scraper.base_url
+
+    def test_base_url_from_config(self, mock_browser):
+        """Scraper uses base URL from config."""
+        config = {"base_url": "https://custom.trading212.com"}
+        scraper = T212Scraper(browser=mock_browser, config=config)
+        assert scraper.base_url == "https://custom.trading212.com"
+
+    def test_extract_rate_from_fixture(self, mock_browser, t212_interest_on_cash_html):
+        """Extract rate from HTML fixture."""
+        scraper = T212Scraper(browser=mock_browser, config={})
+        rate = scraper.extract_rate_from_fixture(t212_interest_on_cash_html)
+        assert rate == Decimal("5.10")
+
+    def test_extract_rate_with_selectors(self, mock_browser, t212_interest_on_cash_html):
+        """Extract rate using configured selectors."""
+        config = {
+            "products": [
+                {
+                    "name": "t212_interest_on_cash",
+                    "selectors": {"rate": ".interest-rate"},
+                }
+            ]
+        }
+        scraper = T212Scraper(browser=mock_browser, config=config)
+        rate = scraper._extract_rate_from_html(
+            t212_interest_on_cash_html, config["products"][0]
+        )
+        assert rate == Decimal("5.10")
+
+
+@pytest.mark.unit
 class TestScraperConfigLoading:
     """Tests for config file loading."""
 
@@ -176,6 +226,12 @@ class TestScraperConfigLoading:
     def test_moneybox_loads_yaml_config(self, mock_browser):
         """Moneybox scraper loads config from YAML."""
         scraper = MoneyboxScraper(browser=mock_browser)
+        assert "products" in scraper.config
+        assert len(scraper.config["products"]) > 0
+
+    def test_t212_loads_yaml_config(self, mock_browser):
+        """T212 scraper loads config from YAML."""
+        scraper = T212Scraper(browser=mock_browser)
         assert "products" in scraper.config
         assert len(scraper.config["products"]) > 0
 
