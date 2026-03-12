@@ -210,7 +210,22 @@ async def _run_scrape(
     default=None,
     help="Input file path (default: data/rates_latest.{format})",
 )
-def show(output_format: str, input_path: str | None) -> None:
+@click.option(
+    "--history",
+    "-h",
+    is_flag=True,
+    help="Show all historical rates with timestamps (default: latest only)",
+)
+@click.option(
+    "--provider",
+    "-p",
+    type=click.Choice(["all"] + [p.value for p in Provider]),
+    default="all",
+    help="Filter by provider (default: all)",
+)
+def show(
+    output_format: str, input_path: str | None, history: bool, provider: str
+) -> None:
     """Show stored rates."""
     if input_path:
         path = Path(input_path)
@@ -233,20 +248,56 @@ def show(output_format: str, input_path: str | None) -> None:
         click.echo("No rates found")
         return
 
-    click.echo(f"Found {len(rates)} rates:\n")
+    # Filter by provider if specified
+    if provider != "all":
+        rates = [r for r in rates if r.provider.value == provider]
 
-    # Group by provider
-    by_provider: dict[Provider, list[SavingsRate]] = {}
+    if not rates:
+        click.echo(f"No rates found for provider: {provider}")
+        return
+
+    # Group by provider and product
+    by_provider: dict[Provider, dict[str, list[SavingsRate]]] = {}
     for rate in rates:
         if rate.provider not in by_provider:
-            by_provider[rate.provider] = []
-        by_provider[rate.provider].append(rate)
+            by_provider[rate.provider] = {}
+        product_key = rate.product_name.value
+        if product_key not in by_provider[rate.provider]:
+            by_provider[rate.provider][product_key] = []
+        by_provider[rate.provider][product_key].append(rate)
 
-    for provider in sorted(by_provider.keys(), key=lambda p: p.value):
-        click.echo(f"{provider.value.upper()}:")
-        for rate in by_provider[provider]:
-            click.echo(f"  {rate.product_name.value}: {rate.rate}% ({rate.rate_type.value})")
-        click.echo()
+    if history:
+        # Show all rates with timestamps
+        total_entries = sum(
+            len(prod_rates) for prods in by_provider.values() for prod_rates in prods.values()
+        )
+        click.echo(f"Found {total_entries} rate entries:\n")
+
+        for prov in sorted(by_provider.keys(), key=lambda p: p.value):
+            click.echo(f"{prov.value.upper()}:")
+            for product_name, product_rates in sorted(by_provider[prov].items()):
+                # Sort by timestamp descending
+                sorted_rates = sorted(product_rates, key=lambda r: r.scraped_at, reverse=True)
+                click.echo(f"  {product_name}:")
+                for rate in sorted_rates:
+                    timestamp = rate.scraped_at.strftime("%Y-%m-%d %H:%M")
+                    click.echo(f"    {timestamp}: {rate.rate}% ({rate.rate_type.value})")
+            click.echo()
+    else:
+        # Show only latest rate per product
+        unique_products = sum(len(products) for products in by_provider.values())
+        click.echo(f"Latest rates ({unique_products} products):\n")
+
+        for prov in sorted(by_provider.keys(), key=lambda p: p.value):
+            click.echo(f"{prov.value.upper()}:")
+            for product_name, product_rates in sorted(by_provider[prov].items()):
+                # Get the latest rate by timestamp
+                latest = max(product_rates, key=lambda r: r.scraped_at)
+                timestamp = latest.scraped_at.strftime("%Y-%m-%d %H:%M")
+                click.echo(
+                    f"  {product_name}: {latest.rate}% ({latest.rate_type.value}) @ {timestamp}"
+                )
+            click.echo()
 
 
 @cli.command()
