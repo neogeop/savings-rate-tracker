@@ -1,0 +1,67 @@
+[project]
+name = "scraping-competitors"
+version = "0.1.0"
+description = "Agent that scrapes savings product rates from UK fintech providers"
+requires-python = ">=3.10"
+dependencies = [
+    "playwright>=1.49.0",
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.3.0",
+    "pydantic>=2.10.0",
+    "pyyaml>=6.0.2",
+    "tenacity>=9.0.0",
+    "click>=8.1.7",
+    "structlog>=24.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.13.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+scrape-rates = "src.main:cli"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "unit: fast unit tests",
+    "integration: tests with real I/O",
+    "e2e: end-to-end tests hitting live sites",
+    "slow: tests taking >1s",
+]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
