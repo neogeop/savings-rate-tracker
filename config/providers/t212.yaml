@@ -2,29 +2,28 @@
 provider: t212
 base_url: https://www.trading212.com
 
-# T212 embeds interest rates in JSON data on the page
-# Rates are stored as decimals (0.049 = 4.9%) under account types:
-# - "undefined":{"AVUSUK":{"GBP":0.049}} for ISA
-# - "invest":{"AVUSUK":{"GBP":0.038}} for Invest account
+# T212 offers better rates via MSE affiliate links
+# The MSE promo rate (4.68% currently) is higher than standard rate (4.10%)
+# URL params: ?cash-isa=&promo-code=MSE
 
 products:
   - name: t212_cash_isa
-    url: /isa
+    url: /isa?cash-isa=&promo-code=MSE
     product_type: cash_isa
     rate_type: variable
-    # Extract ISA rate from "undefined" key (UK entity AVUSUK)
-    json_key: "undefined"
     selectors:
       rate: "body"
+    # Extract the headline promo rate "Earn X.XX% AER"
+    rate_pattern: "Earn\\s*(\\d+\\.\\d+)%\\*?\\s*AER"
 
   - name: t212_interest_on_cash
-    url: /isa
+    url: /interest-on-cash
     product_type: easy_access
     rate_type: variable
-    # Extract Invest account rate from "invest" key (UK entity AVUSUK)
-    json_key: "invest"
     selectors:
       rate: "body"
+    # Extract GBP rate specifically (page shows EUR, USD, GBP, CHF, etc.)
+    rate_pattern: "GBP\\s*(\\d+\\.?\\d*)%"
 
 # Rate limiting settings
 rate_limit:
