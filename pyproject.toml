@@ -1,5 +1,5 @@
 [project]
-name = "scraping-competitors"
+name = "savings-rate-tracker"
 version = "0.1.0"
 description = "Agent that scrapes savings product rates from UK fintech providers"
 requires-python = ">=3.10"

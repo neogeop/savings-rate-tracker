@@ -87,6 +87,19 @@ class TestChangeDetectorInit:
         detector = ChangeDetector(historical_rates=history)
         assert TemboProduct.CASH_ISA_EASY_ACCESS in detector._history
 
+    def test_load_history_sorted_chronologically(self):
+        """_load_history sorts ascending by scraped_at regardless of input order."""
+        rates = [
+            make_rate(Decimal("4.30"), days_ago=1),
+            make_rate(Decimal("4.10"), days_ago=5),
+            make_rate(Decimal("4.20"), days_ago=3),
+        ]
+        detector = ChangeDetector()
+        detector._load_history(rates)
+        stored = detector._history[TemboProduct.CASH_ISA_EASY_ACCESS]
+        timestamps = [r.scraped_at for r in stored]
+        assert timestamps == sorted(timestamps)
+
 
 @pytest.mark.unit
 class TestChangeDetection:
