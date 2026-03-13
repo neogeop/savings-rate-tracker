@@ -81,9 +81,13 @@ class TestShowCommand:
 class TestVerboseFlag:
     """Tests for verbose flag."""
 
-    def test_verbose_flag_accepted(self, runner):
-        """CLI accepts verbose flag."""
-        result = runner.invoke(cli, ["-v", "providers"])
+    def test_verbose_flag_accepted(self, runner, tmp_path):
+        """scrape command accepts verbose flag."""
+        from unittest.mock import patch
+        from src.orchestrator import OrchestratorResult
+        mock_result = OrchestratorResult(total_rates=0, successful_providers=0, failed_providers=0)
+        with patch("src.main._run_scrape", return_value=mock_result):
+            result = runner.invoke(cli, ["scrape", "-v", "--output", str(tmp_path / "r.json")])
         assert result.exit_code == 0
 
 
@@ -114,8 +118,26 @@ class TestScrapeExecution:
         mock_run.assert_called_once()
 
     @patch("src.main._run_scrape")
-    def test_scrape_reports_results(self, mock_run, runner, tmp_path):
-        """scrape command reports results."""
+    def test_scrape_silent_by_default(self, mock_run, runner, tmp_path):
+        """scrape command produces no stdout on success without --verbose."""
+        from src.orchestrator import OrchestratorResult
+
+        mock_result = OrchestratorResult(
+            total_rates=5,
+            successful_providers=4,
+            failed_providers=0,
+        )
+        mock_run.return_value = mock_result
+
+        output_file = tmp_path / "rates.json"
+        result = runner.invoke(cli, ["scrape", "--output", str(output_file)])
+
+        assert result.output.strip() == ""
+        assert result.exit_code == 0
+
+    @patch("src.main._run_scrape")
+    def test_scrape_reports_results_in_verbose_mode(self, mock_run, runner, tmp_path):
+        """scrape command reports results on stdout when --verbose is passed."""
         from src.orchestrator import OrchestratorResult
 
         mock_result = OrchestratorResult(
@@ -129,11 +151,45 @@ class TestScrapeExecution:
         output_file = tmp_path / "rates.json"
         result = runner.invoke(
             cli,
-            ["scrape", "--output", str(output_file)],
+            ["scrape", "-v", "--output", str(output_file)],
         )
 
         assert "Rates found: 5" in result.output
         assert "Providers scraped: 4/4" in result.output
+
+    @patch("src.main._run_scrape")
+    def test_scrape_partial_failure_exits_2(self, mock_run, runner, tmp_path):
+        """Partial failure exits with code 2."""
+        from src.orchestrator import OrchestratorResult
+
+        mock_result = OrchestratorResult(
+            total_rates=2,
+            successful_providers=1,
+            failed_providers=1,
+        )
+        mock_run.return_value = mock_result
+
+        output_file = tmp_path / "rates.json"
+        result = runner.invoke(cli, ["scrape", "--output", str(output_file)])
+
+        assert result.exit_code == 2
+
+    @patch("src.main._run_scrape")
+    def test_scrape_full_failure_exits_1(self, mock_run, runner, tmp_path):
+        """Full failure exits with code 1."""
+        from src.orchestrator import OrchestratorResult
+
+        mock_result = OrchestratorResult(
+            total_rates=0,
+            successful_providers=0,
+            failed_providers=2,
+        )
+        mock_run.return_value = mock_result
+
+        output_file = tmp_path / "rates.json"
+        result = runner.invoke(cli, ["scrape", "--output", str(output_file)])
+
+        assert result.exit_code == 1
 
     @patch("src.main._run_scrape")
     def test_scrape_single_provider(self, mock_run, runner, tmp_path):

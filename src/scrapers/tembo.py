@@ -68,7 +68,7 @@ class TemboScraper(BaseScraper):
                 rate = await self._scrape_product(product_config)
                 if rate:
                     rates.append(rate)
-            except (RateExtractionError, SelectorNotFoundError) as e:
+            except Exception as e:
                 self._log.warning(
                     "scrape.product.failed",
                     product=product_config.get("name"),

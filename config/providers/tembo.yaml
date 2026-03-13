@@ -2,45 +2,40 @@
 provider: tembo
 base_url: https://www.tembomoney.com
 
-# Tembo has a single savings page with all products
-# Each product uses specific patterns to extract the correct rate
+# Each product has its own dedicated page
 products:
   - name: tembo_cash_isa_easy_access
-    url: /savings
+    url: /savings/cash-isa
     product_type: cash_isa
     rate_type: variable
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    # Match "X.XX% AER (variable)" pattern - unique to Cash ISA Easy Access
-    rate_pattern: "(\\d+\\.\\d+)%\\s*AER\\s*\\(variable\\)"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
   - name: tembo_cash_isa_fixed_rate
-    url: /savings
+    url: /savings/fixed-term-cash-isa
     product_type: fixed_rate
     rate_type: fixed
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    # Match "X.XX% AER Fixed" pattern - unique to Cash ISA Fixed Rate
-    rate_pattern: "(\\d+\\.\\d+)%\\s*AER Fixed"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
     term_months: 12
 
   - name: tembo_lifetime_isa_cash
-    url: /savings
+    url: /savings/cash-lifetime-isa
     product_type: lifetime_isa
     rate_type: variable
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    # Match "Cash (X.XX% AER variable)" pattern - unique to LISA Cash option
-    rate_pattern: "Cash \\((\\d+\\.\\d+)%\\s*AER variable\\)"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
   - name: tembo_lifetime_isa_stocks
-    url: /savings
+    url: /savings/stocks-and-shares-lifetime-isa
     product_type: lifetime_isa
     rate_type: variable
     selectors:
       rate: ".chakra-text, .chakra-stack"
-    # Match first rate after "AER Fixed" text - the LISA Stocks rate follows Fixed Rate
-    rate_pattern: "AER Fixed.*?(\\d+\\.\\d+)%\\s*AER"
+    rate_pattern: "(\\d+\\.\\d+)%\\s*AER"
 
 # Rate limiting settings
 rate_limit:

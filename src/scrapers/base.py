@@ -80,7 +80,7 @@ class BaseScraper(ABC):
         self._log.info("scrape.page.loading", url=url)
 
         async with self.browser.page_context() as page:
-            await page.goto(url, wait_until="networkidle")
+            await page.goto(url, wait_until="domcontentloaded")
 
             if wait_selector:
                 try:

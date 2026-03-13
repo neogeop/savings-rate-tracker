@@ -1,7 +1,9 @@
 """CLI entry point for scraping agent."""
 
 import asyncio
+import logging
 import sys
+import warnings
 from pathlib import Path
 
 import click
@@ -40,17 +42,8 @@ DEFAULT_OUTPUT_DIR = Path("data")
 
 
 @click.group()
-@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
-@click.pass_context
-def cli(ctx: click.Context, verbose: bool) -> None:
+def cli() -> None:
     """Savings rate scraping agent for UK fintech providers."""
-    ctx.ensure_object(dict)
-    ctx.obj["verbose"] = verbose
-
-    if verbose:
-        import logging
-
-        logging.basicConfig(level=logging.DEBUG)
 
 
 @cli.command()
@@ -86,17 +79,23 @@ def cli(ctx: click.Context, verbose: bool) -> None:
     is_flag=True,
     help="Detect and report rate changes from previous scrape",
 )
-@click.pass_context
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 def scrape(
-    ctx: click.Context,
     provider: str,
     output: str | None,
     output_format: str,
     headless: bool,
     detect_changes: bool,
+    verbose: bool,
 ) -> None:
     """Scrape savings rates from providers."""
-    verbose = ctx.obj.get("verbose", False)
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARNING)
+        warnings.filterwarnings('ignore', module=r'bs4')
+        warnings.filterwarnings('ignore', module=r'lxml')
+        logging.getLogger('playwright').setLevel(logging.ERROR)
 
     # Determine providers
     providers = list(Provider) if provider == "all" else [Provider(provider)]
@@ -126,12 +125,13 @@ def scrape(
             logger.warning("change_detector.load_failed", error=str(e))
 
     # Run scraping
-    click.echo(f"Scraping rates from: {', '.join(p.value for p in providers)}")
+    if verbose:
+        click.echo(f"Scraping rates from: {', '.join(p.value for p in providers)}")
 
     try:
         result = asyncio.run(_run_scrape(providers, storage, headless))
     except KeyboardInterrupt:
-        click.echo("\nScraping interrupted by user")
+        click.echo("\nScraping interrupted by user", err=True)
         sys.exit(130)
     except Exception as e:
         logger.error("scrape.failed", error=str(e))
@@ -139,18 +139,17 @@ def scrape(
         sys.exit(1)
 
     # Report results
-    click.echo("\nResults:")
-    click.echo(f"  Providers scraped: {result.successful_providers}/{len(providers)}")
-    click.echo(f"  Rates found: {result.total_rates}")
-    click.echo(f"  Duration: {result.duration_seconds:.2f}s")
-    click.echo(f"  Output: {output_path}")
+    if verbose:
+        click.echo("\nResults:")
+        click.echo(f"  Providers scraped: {result.successful_providers}/{len(providers)}")
+        click.echo(f"  Rates found: {result.total_rates}")
+        click.echo(f"  Duration: {result.duration_seconds:.2f}s")
+        click.echo(f"  Output: {output_path}")
 
-    # Report failures
-    if result.failed_providers > 0:
-        click.echo("\nFailed providers:")
-        for r in result.results:
-            if not r.success:
-                click.echo(f"  - {r.provider.value}: {r.error}")
+    # Report failures to stderr
+    for r in result.results:
+        if not r.success:
+            click.echo(f"ERROR: {r.provider.value}: {r.error}", err=True)
 
     # Detect changes if requested
     if change_detector and result.total_rates > 0:
@@ -174,8 +173,10 @@ def scrape(
                     click.echo(f"  {anomaly.product_name.value}: {anomaly.anomaly_reason}")
 
     # Exit code
-    if result.failed_providers > 0 and result.successful_providers == 0:
-        sys.exit(1)
+    if result.successful_providers == 0 and result.failed_providers > 0:
+        sys.exit(1)   # all failed
+    elif result.failed_providers > 0:
+        sys.exit(2)   # partial failure
 
 
 async def _run_scrape(
